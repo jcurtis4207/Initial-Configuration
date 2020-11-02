@@ -1,6 +1,6 @@
 # Initial Configuration
 These scripts are a fork of txoof's repo 'piconfig'
-github.com/txoof/piconfig
+https://github.com/txoof/piconfig
 
 Each one goes through the steps for configuring a new debian-based system.
 

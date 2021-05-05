@@ -15,7 +15,7 @@ dotfile_repo="https://github.com/jcurtis4207/Dotfiles.git"
 # setup sudo
 setup_sudo () {
     # check if user member of sudo group
-    groups=$(groups $USER)
+    groups=$(groups "$USER")
     if [[ $groups != *sudo* ]];then
         echo "First time setup for sudo"
         echo "     su -"
@@ -34,7 +34,7 @@ install_pkgs () {
   echo "Updating and upgrading packages"
   sudo apt-get update 
   sudo apt-get full-upgrade --yes --auto-remove
-  sudo apt-get install $packages --yes
+  sudo apt-get install "$packages" --yes
   echo " "
 }
 
@@ -55,19 +55,19 @@ dot_files () {
     echo "Inlucde .config directory? [y/n]"
     while true
     do
-        read response
+        read -r response
         case $response in
-            [yY]) rsync -arv --no-o --no-g --no-perms --exclude '.git' --exclude 'README.md' ./Dotfiles/ /home/$USER/; break ;;
-            [nN]) rsync -arv --no-o --no-g --no-perms --exclude '.git' --exclude 'README.md' --exclude '.config' ./Dotfiles/ /home/$USER/; break ;;
+            [yY]) rsync -arv --no-o --no-g --no-perms --exclude '.git' --exclude 'README.md' ./Dotfiles/ /home/"$USER"/; break ;;
+            [nN]) rsync -arv --no-o --no-g --no-perms --exclude '.git' --exclude 'README.md' --exclude '.config' ./Dotfiles/ /home/"$USER"/; break ;;
             *) echo "Enter y or n" ;;
         esac
     done
     echo " "
     echo "Syncing dotfiles"
-    source /home/$USER/.bashrc
+    source /home/"$USER"/.bashrc
     echo " "
     echo "Removing Dotfiles directory"
-    rm -rf /home/$USER/Dotfiles
+    rm -rf /home/"$USER"/Dotfiles
     echo " "
 }
 
@@ -76,12 +76,12 @@ static_ip () {
   echo "Configuring static IP? [y/n]"
   while true
   do
-          read response
+          read -r response
           case $response in
                   [yY])
-                    read -p "Enter the static IP address in the format xxx.xxx.xxx.xxx: " IP
-                    read -p "Enter the static netmask in the format xxx.xxx.xxx.xxx: " NETMASK
-                    read -p "Enter the static gateway in the format xxx.xxx.xxx.xxx: " GATEWAY
+                    read -rp "Enter the static IP address in the format xxx.xxx.xxx.xxx: " IP
+                    read -rp "Enter the static netmask in the format xxx.xxx.xxx.xxx: " NETMASK
+                    read -rp "Enter the static gateway in the format xxx.xxx.xxx.xxx: " GATEWAY
 
                     sudo sed -i 's/dhcp/static/g' /etc/network/interfaces
                     echo "    address $IP" | sudo tee -a /etc/network/interfaces
@@ -102,11 +102,11 @@ host_name () {
   echo "Configuring Hostname? [y/n]"
   while true
   do
-          read response
+          read -r response
           case $response in
                   [yY])
-                    read -p "Enter new hostname: " NEWNAME
-                    sudo hostnamectl set-hostname $NEWNAME
+                    read -rp "Enter new hostname: " NEWNAME
+                    sudo hostnamectl set-hostname "$NEWNAME"
                     # find appropriate line in hosts file
                     linenum=$(awk '/127.0.1.1/{ print NR; exit }' /etc/hosts)
                     # change hostname in hosts file

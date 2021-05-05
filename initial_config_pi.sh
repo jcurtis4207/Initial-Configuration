@@ -30,7 +30,7 @@ install_pkgs () {
   echo "Updating and upgrading packages"
   sudo apt-get update 
   sudo apt-get full-upgrade --yes --auto-remove 
-  sudo apt-get install $packages --yes
+  sudo apt-get install "$packages" --yes
   echo " "
 }
 
@@ -48,17 +48,17 @@ dot_files () {
     echo "Inlucde .config directory? [y/n]"
     while true
     do
-        read response
+        read -r response
         case $response in
-            [yY]) rsync -arv --no-o --no-g --no-perms --exclude '.git' --exclude 'README.md' ./Dotfiles/ /home/$USER/; break ;;
-            [nN]) rsync -arv --no-o --no-g --no-perms --exclude '.git' --exclude 'README.md' --exclude '.config' ./Dotfiles/ /home/$USER/; break ;;
+            [yY]) rsync -arv --no-o --no-g --no-perms --exclude '.git' --exclude 'README.md' ./Dotfiles/ /home/"$USER"/; break ;;
+            [nN]) rsync -arv --no-o --no-g --no-perms --exclude '.git' --exclude 'README.md' --exclude '.config' ./Dotfiles/ /home/"$USER"/; break ;;
             *) echo "Enter y or n" ;;
         esac
     done
     echo "Syncing dotfiles"
-    source ~/.bashrc
+    source /home/"$USER"/.bashrc
     echo "Removing Dotfiles directory"
-    rm -rf /home/$USER/Dotfiles
+    rm -rf /home/"$USER"/Dotfiles
     echo " "
 }
 
@@ -80,16 +80,16 @@ static_ip () {
   # list all the available interfaces
   for iface in $(ifconfig | cut -d ' ' -f1 | tr ':' '\n'|awk NF)
   do
-    printf "$iface\n"
+    printf "%s\n" "$iface"
     interfaces+=("$iface")
   done
   # add 'None' as an option in the list
   iface="None"
-  printf "$iface\n"
+  printf "%s\n" "$iface"
   interfaces+=("$iface")
 
   # loop until user enters a valid interface from the list
-  echo ${interfaces}
+  echo "${interfaces[@]}"
   echo " "
   while read -p "Interface: " -r user_iface;
       ! contains interfaces "$user_iface"; do
@@ -100,9 +100,9 @@ static_ip () {
       echo "skipping static IP configuration"; return 0;;
   esac
 
-  read -p "Enter the static IP address in the format xxx.xxx.xxx.xxx/yy: " IP
-  read -p "Enter static router address in the format xxx.xxx.xxx.xxx: " ROUTER
-  read -p "Enter the static DNS in the format xxx.xxx.xxx.xxx: " DNS
+  read -rp "Enter the static IP address in the format xxx.xxx.xxx.xxx/yy: " IP
+  read -rp "Enter static router address in the format xxx.xxx.xxx.xxx: " ROUTER
+  read -rp "Enter the static DNS in the format xxx.xxx.xxx.xxx: " DNS
 
   tmpFile=/tmp/static.ip
   echo "interface $user_iface" > $tmpFile
@@ -119,7 +119,7 @@ static_ip () {
   cat $tmpFile
 
   echo " "
-  read -p "Continue with replacement? [Y/n]: " REPLACE
+  read -rp "Continue with replacement? [Y/n]: " REPLACE
   case $REPLACE in
     [nN]*) echo "skipping..."; return 0;;
     [yY]*) echo "replacing here"; cat $tmpFile | sudo tee -a /etc/dhcpcd.conf;;
@@ -131,12 +131,12 @@ static_ip () {
 # set the hostname
 host_name () {
 	echo " "
-	CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \t\n\r"`
+    CURRENT_HOSTNAME=$(cat /etc/hostname | tr -d " \t\n\r")
 	echo "Current hostname: $CURRENT_HOSTNAME"
 	echo "Would you like to change this hostname?"
-	read -p "Please enter a new hostname or press enter to skip: " NEW_HOSTNAME
+	read -rp "Please enter a new hostname or press enter to skip: " NEW_HOSTNAME
 	if [[ $NEW_HOSTNAME ]]; then
-		echo $NEW_HOSTNAME | sudo tee /etc/hostname
+		echo "$NEW_HOSTNAME" | sudo tee /etc/hostname
 		sudo sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\t$NEW_HOSTNAME/g" /etc/hosts
 		echo "please reboot for hostname changes to take effect"
     else

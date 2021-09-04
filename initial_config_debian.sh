@@ -34,7 +34,7 @@ install_pkgs () {
   echo "Updating and upgrading packages"
   sudo apt-get update 
   sudo apt-get full-upgrade --yes --auto-remove
-  sudo apt-get install "$packages" --yes
+  sudo apt-get install $packages --yes
   echo " "
 }
 
